@@ -70,6 +70,11 @@ func (c *Cache) Add(key Key, value interface{}) {
 	}
 }
 
+// Set adds a value to the cache.
+func (c *Cache) Set(key Key, value interface{}) {
+	c.Add(key, value)
+}
+
 // Get looks up a key's value from the cache.
 func (c *Cache) Get(key Key) (value interface{}, ok bool) {
 	if c.cache == nil {
@@ -80,6 +85,11 @@ func (c *Cache) Get(key Key) (value interface{}, ok bool) {
 		return ele.Value.(*entry).value, true
 	}
 	return
+}
+
+// Del delete the provided key form the cahce.
+func (c *Cache) Del(key Key) {
+	c.Remove(key)
 }
 
 // Remove removes the provided key from the cache.

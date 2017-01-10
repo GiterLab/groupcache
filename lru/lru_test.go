@@ -44,6 +44,24 @@ var getTests = []struct {
 		complexStruct{1, simpleStruct{2, "three"}}, true},
 }
 
+func TestSet(t *testing.T) {
+	lru := New(0)
+	lru.Add("key", 1234)
+	lru.Add("key", 12345)
+	lru.Add("key1", 1234)
+	lru.Add("key", 4321)
+	val, ok := lru.Get("key")
+	// t.Log(lru.cache, lru.ll.Len())
+	if !ok {
+		t.Fatalf("key should be exist")
+	} else {
+		value, ok := val.(int)
+		if !ok || value != 4321 {
+			t.Fatalf("%s expected get to return 1234 but got %v", "key", value)
+		}
+	}
+}
+
 func TestGet(t *testing.T) {
 	for _, tt := range getTests {
 		lru := New(0)

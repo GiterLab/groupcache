@@ -204,6 +204,10 @@ func (g *Group) initPeers() {
 	}
 }
 
+func (g *Group) Set(ctx Context, key string, value interface{}) {
+
+}
+
 func (g *Group) Get(ctx Context, key string, dest Sink) error {
 	g.peersOnce.Do(g.initPeers)
 	g.Stats.Gets.Add(1)
@@ -230,6 +234,10 @@ func (g *Group) Get(ctx Context, key string, dest Sink) error {
 		return nil
 	}
 	return setSinkView(dest, value)
+}
+
+func (g *Group) Del(ctx Context, key string) {
+
 }
 
 // load loads key either by invoking the getter locally or by sending it to another machine.
@@ -422,6 +430,10 @@ func (c *cache) add(key string, value ByteView) {
 	c.nbytes += int64(len(key)) + int64(value.Len())
 }
 
+func (c *cache) set(key string, value ByteView) {
+
+}
+
 func (c *cache) get(key string) (value ByteView, ok bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -435,6 +447,10 @@ func (c *cache) get(key string) (value ByteView, ok bool) {
 	}
 	c.nhit++
 	return vi.(ByteView), true
+}
+
+func (c *cache) del(key string) {
+
 }
 
 func (c *cache) removeOldest() {
