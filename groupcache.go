@@ -220,7 +220,7 @@ func (g *Group) Set(ctx Context, key string, value []byte) {
 		g.hotCache.set(key, v)
 		return
 	}
-	g.mainCache.set(key, v)
+	g.populateCache(key, v, &g.mainCache)
 	return
 }
 
