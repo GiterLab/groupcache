@@ -55,7 +55,7 @@ func (f GetterFunc) Get(ctx Context, key string, dest Sink) error {
 }
 
 var (
-	mu sync.RWMutex
+	mu     sync.RWMutex
 	groups = make(map[string]*Group)
 
 	initPeerServerOnce sync.Once
@@ -145,31 +145,31 @@ type Group struct {
 	peers      PeerPicker
 	cacheBytes int64 // limit for sum of mainCache and hotCache size
 
-			 // mainCache is a cache of the keys for which this process
-			 // (amongst its peers) is authoritative. That is, this cache
-			 // contains keys which consistent hash on to this process's
-			 // peer number.
-	mainCache  cache
+	// mainCache is a cache of the keys for which this process
+	// (amongst its peers) is authoritative. That is, this cache
+	// contains keys which consistent hash on to this process's
+	// peer number.
+	mainCache cache
 
-			 // hotCache contains keys/values for which this peer is not
-			 // authoritative (otherwise they would be in mainCache), but
-			 // are popular enough to warrant mirroring in this process to
-			 // avoid going over the network to fetch from a peer.  Having
-			 // a hotCache avoids network hotspotting, where a peer's
-			 // network card could become the bottleneck on a popular key.
-			 // This cache is used sparingly to maximize the total number
-			 // of key/value pairs that can be stored globally.
-	hotCache   cache
+	// hotCache contains keys/values for which this peer is not
+	// authoritative (otherwise they would be in mainCache), but
+	// are popular enough to warrant mirroring in this process to
+	// avoid going over the network to fetch from a peer.  Having
+	// a hotCache avoids network hotspotting, where a peer's
+	// network card could become the bottleneck on a popular key.
+	// This cache is used sparingly to maximize the total number
+	// of key/value pairs that can be stored globally.
+	hotCache cache
 
-			 // loadGroup ensures that each key is only fetched once
-			 // (either locally or remotely), regardless of the number of
-			 // concurrent callers.
-	loadGroup  flightGroup
+	// loadGroup ensures that each key is only fetched once
+	// (either locally or remotely), regardless of the number of
+	// concurrent callers.
+	loadGroup flightGroup
 
-	_          int32 // force Stats to be 8-byte aligned on 32-bit platforms
+	_ int32 // force Stats to be 8-byte aligned on 32-bit platforms
 
-			 // Stats are statistics on the group.
-	Stats      Stats
+	// Stats are statistics on the group.
+	Stats Stats
 }
 
 // flightGroup is defined as an interface which flightgroup.Group
@@ -210,13 +210,11 @@ func (g *Group) Set(ctx Context, key string, value []byte) {
 	if g.cacheBytes <= 0 {
 		return
 	}
-	_, ok := g.mainCache.get(key)
-	if ok {
+	if _, ok := g.mainCache.get(key); ok {
 		g.mainCache.set(key, v)
 		return
 	}
-	_, ok = g.hotCache.get(key)
-	if ok {
+	if _, ok := g.hotCache.get(key); ok {
 		g.hotCache.set(key, v)
 		return
 	}
@@ -256,13 +254,11 @@ func (g *Group) Del(ctx Context, key string) {
 	if g.cacheBytes <= 0 {
 		return
 	}
-	_, ok := g.mainCache.get(key)
-	if ok {
+	if _, ok := g.mainCache.get(key); ok {
 		g.mainCache.del(key)
 		return
 	}
-	_, ok = g.hotCache.get(key)
-	if ok {
+	if _, ok := g.hotCache.get(key); ok {
 		g.hotCache.del(key)
 		return
 	}
@@ -378,7 +374,7 @@ func (g *Group) populateCache(key string, value ByteView, cache *cache) {
 	for {
 		mainBytes := g.mainCache.bytes()
 		hotBytes := g.hotCache.bytes()
-		if mainBytes + hotBytes <= g.cacheBytes {
+		if mainBytes+hotBytes <= g.cacheBytes {
 			return
 		}
 
@@ -386,7 +382,7 @@ func (g *Group) populateCache(key string, value ByteView, cache *cache) {
 		// It should be something based on measurements and/or
 		// respecting the costs of different resources.
 		victim := &g.mainCache
-		if hotBytes > mainBytes / 8 {
+		if hotBytes > mainBytes/8 {
 			victim = &g.hotCache
 		}
 		victim.removeOldest()
